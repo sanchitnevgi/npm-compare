@@ -1,0 +1,28 @@
+{
+  "name": "npm-compare",
+  "version": "1.0.0",
+  "description": "Compare npm packages from your terminal",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sanchitgn/npm-compare.git"
+  },
+  "keywords": [
+    "npm",
+    "cli",
+    "compare"
+  ],
+  "author": "Sanchit Nevgi <sanchit.nevgi@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sanchitgn/npm-compare/issues"
+  },
+  "homepage": "https://github.com/sanchitgn/npm-compare#readme",
+  "dependencies": {
+    "axios": "^0.15.3",
+    "yargs": "^7.0.1"
+  }
+}

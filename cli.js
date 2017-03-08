@@ -5,15 +5,12 @@ const axios = require('axios');
 const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
 const Table = require('cli-table');
 
-const [ firstPackage, secondPackage ] = argv._;
+const packageNames = argv._;
 
-if(!firstPackage || !secondPackage) {
-  console.log('Please specify package');
-  return;
-}
+const isValidPackageName = name => !name;
 
 // Stats to compare
-// name, version, description, rating, author, created, modified, downloads, stars, issues, repository, dependencies
+// name, version, description, rating, created, modified, downloads, stars, issues, repository, dependencies
 
 const getPackageDetails = name => {
   const url = `https://api.npms.io/v2/package/${name}`;
@@ -27,23 +24,23 @@ const getPackageDetails = name => {
       return package;
     })
     .catch(err => {
-      console.log('Woah, what is', name);
+      console.log(err);
     });
 }
 
 const mapResponseToPackage = response => {
-  const { metadata: { name, version, description, date, author, links, dependencies },
+  const { metadata: { name, version, description, date, links, dependencies },
           npm, github } = response.collected;
   
   const [ daily, weekly, monthly ] = npm.downloads.map(data => data.count);
 
   const downloads = { daily, weekly, monthly };
-  
-  const package = { name, version, description, modified: distanceInWordsToNow(date), author: author.name,
+
+  const package = { name, version, description, modified: distanceInWordsToNow(date),
                     repository: links.repository, dependencies: Object.keys(dependencies).length,
                     stars: github.starsCount, issues: github.issues.openCount,
                     downloads, rating: formatRating(response.score.final) };
-  
+
   return package;
 }
 
@@ -57,14 +54,14 @@ const printTable = (packages) => {
   
   const keys = Object.keys(packages[0]);
   
-  keys.forEach(key => table.push({ [key]: packages.map(package => package[key]) }));
+  keys.forEach(key => table.push({ [key.toUpperCase()]: packages.map(package => package[key]) }));
 
   console.log(table.toString());  
 }
 
 const init = () => {
   
-  Promise.all([firstPackage, secondPackage].map(getPackageDetails))
+  Promise.all(packageNames.map(getPackageDetails))
   .then(packages => {
     printTable(packages);
   })

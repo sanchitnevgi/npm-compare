@@ -15,8 +15,8 @@ if(!firstPackage || !secondPackage) {
 // Stats to compare
 // name, version, description, rating, author, created, modified, downloads, stars, issues, repository, dependencies
 
-const getPackageDetails = package => {
-  const url = `https://api.npms.io/v2/package/${package}`;
+const getPackageDetails = name => {
+  const url = `https://api.npms.io/v2/package/${name}`;
   return axios.get(url)
     .then(res => {
       if(res.status !== 200) return Promise.reject(res.data.message);
@@ -27,7 +27,7 @@ const getPackageDetails = package => {
       return package;
     })
     .catch(err => {
-      console.log(err);
+      console.log('Woah, what is', name);
     });
 }
 
@@ -67,6 +67,9 @@ const init = () => {
   Promise.all([firstPackage, secondPackage].map(getPackageDetails))
   .then(packages => {
     printTable(packages);
+  })
+  .catch(err => {
+    console.log('Oops, looks like the comparison failed');
   })
 
 }

@@ -9,9 +9,6 @@ const packageNames = argv._;
 
 const isValidPackageName = name => !name;
 
-// Stats to compare
-// name, version, description, rating, created, modified, downloads, stars, issues, repository, dependencies
-
 const getPackageDetails = name => {
   const url = `https://api.npms.io/v2/package/${name}`;
   return axios.get(url)
@@ -24,19 +21,25 @@ const getPackageDetails = name => {
       return package;
     })
     .catch(err => {
-      console.log(err);
+      console.log('Could not fetch package details!');
     });
 }
 
+/*
+  Stats that are compared:
+  name, version, description, rating, author, modified, downloads, stars, issues, repository, dependencies
+*/
 const mapResponseToPackage = response => {
-  const { metadata: { name, version, description, date, links, dependencies },
-          npm, github } = response.collected;
   
-  const [ daily, weekly, monthly ] = npm.downloads.map(data => data.count);
+  const { metadata: { name, version = '', description = '', author = { name: '' }, date, links = { repository: '' }, dependencies = {} },
+          npm = { downloads: 0 }, github = { starsCount: 0, issues: { openCount: 0 } } } = response.collected;
 
-  const package = { name, version, description, modified: distanceInWordsToNow(date),
+  
+  const [ daily = 0, weekly = 0, monthly = 0 ] = npm.downloads.map(data => data.count.toLocaleString('en'));
+
+  const package = { name, version, description, modified: distanceInWordsToNow(date), author: author.name,
                     repository: links.repository, dependencies: Object.keys(dependencies).length,
-                    stars: github.starsCount, issues: github.issues.openCount,
+                    stars: github.starsCount.toLocaleString('en'), issues: github.issues.openCount.toLocaleString('en'),
                     daily, weekly, monthly, rating: formatRating(response.score.final) };
 
   return package;

@@ -27,6 +27,8 @@
   "homepage": "https://github.com/sanchitgn/npm-compare#readme",
   "dependencies": {
     "axios": "^0.15.3",
+    "chalk": "^1.1.3",
+    "date-fns": "^1.28.0",
     "yargs": "^7.0.1"
   }
 }

@@ -2,6 +2,7 @@
 
 const argv = require('yargs').argv;
 const axios = require('axios');
+const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
 
 const [ firstPackage, secondPackage ] = argv._;
 
@@ -23,7 +24,7 @@ const getPackageDetails = package => {
       return res.data;
     })
     .then(data => {
-      const package = extractDetails(data);
+      const package = mapResponseToPackage(data);
       console.log(package);
     })
     .catch(err => {
@@ -31,10 +32,24 @@ const getPackageDetails = package => {
     });
 }
 
-const extractDetails = bloated => {
-  const { metadata: { name, version, description, date, author, links, dependencies } } = bloated.collected;
-  const package = { name, version, description, modified: date, author: author.name, repository: links.repository, dependencies: Object.keys(dependencies).length };
+const mapResponseToPackage = response => {
+  const { metadata: { name, version, description, date, author, links, dependencies },
+          npm, github } = response.collected;
+  
+  const [ daily, weekly, monthly ] = npm.downloads.map(data => data.count);
+
+  const downloads = { daily, weekly, monthly }
+  
+  const package = { name, version, description, modified: distanceInWordsToNow(date), author: author.name,
+                    repository: links.repository, dependencies: Object.keys(dependencies).length,
+                    stars: github.starsCount, issues: github.issues.openCount,
+                    downloads, rating: formatRating(response.score.final) };
+  
   return package;
+}
+
+const formatRating = rating => {
+  return parseFloat(Math.round(rating*1000)/100).toFixed(2);
 }
 
 getPackageDetails(firstPackage)

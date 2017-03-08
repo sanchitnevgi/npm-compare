@@ -34,12 +34,10 @@ const mapResponseToPackage = response => {
   
   const [ daily, weekly, monthly ] = npm.downloads.map(data => data.count);
 
-  const downloads = { daily, weekly, monthly };
-
   const package = { name, version, description, modified: distanceInWordsToNow(date),
                     repository: links.repository, dependencies: Object.keys(dependencies).length,
                     stars: github.starsCount, issues: github.issues.openCount,
-                    downloads, rating: formatRating(response.score.final) };
+                    daily, weekly, monthly, rating: formatRating(response.score.final) };
 
   return package;
 }

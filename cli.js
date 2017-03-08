@@ -3,6 +3,7 @@
 const argv = require('yargs').argv;
 const axios = require('axios');
 const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
+const Table = require('cli-table');
 
 const [ firstPackage, secondPackage ] = argv._;
 
@@ -10,8 +11,6 @@ if(!firstPackage || !secondPackage) {
   console.log('Please specify package');
   return;
 }
-
-console.log('You are comparing', firstPackage, secondPackage);
 
 // Stats to compare
 // name, version, description, rating, author, created, modified, downloads, stars, issues, repository, dependencies
@@ -25,7 +24,7 @@ const getPackageDetails = package => {
     })
     .then(data => {
       const package = mapResponseToPackage(data);
-      console.log(package);
+      return package;
     })
     .catch(err => {
       console.log(err);
@@ -38,7 +37,7 @@ const mapResponseToPackage = response => {
   
   const [ daily, weekly, monthly ] = npm.downloads.map(data => data.count);
 
-  const downloads = { daily, weekly, monthly }
+  const downloads = { daily, weekly, monthly };
   
   const package = { name, version, description, modified: distanceInWordsToNow(date), author: author.name,
                     repository: links.repository, dependencies: Object.keys(dependencies).length,
@@ -52,4 +51,24 @@ const formatRating = rating => {
   return parseFloat(Math.round(rating*1000)/100).toFixed(2);
 }
 
-getPackageDetails(firstPackage)
+const printTable = (packages) => {
+  
+  const table = new Table();
+  
+  const keys = Object.keys(packages[0]);
+  
+  keys.forEach(key => table.push({ [key]: packages.map(package => package[key]) }));
+
+  console.log(table.toString());  
+}
+
+const init = () => {
+  
+  Promise.all([firstPackage, secondPackage].map(getPackageDetails))
+  .then(packages => {
+    printTable(packages);
+  })
+
+}
+
+init();

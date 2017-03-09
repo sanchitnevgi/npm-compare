@@ -20,7 +20,7 @@
     "compare"
   ],
   "author": "Sanchit Nevgi <sanchit.nevgi@gmail.com>",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/sanchitgn/npm-compare/issues"
   },

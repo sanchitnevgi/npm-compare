@@ -7,8 +7,6 @@ const Table = require('cli-table');
 
 const packageNames = argv._;
 
-const isValidPackageName = name => !name;
-
 const getPackageDetails = name => {
   const url = `https://api.npms.io/v2/package/${name}`;
   return axios.get(url)
@@ -16,10 +14,7 @@ const getPackageDetails = name => {
       if(res.status !== 200) return Promise.reject(res.data.message);
       return res.data;
     })
-    .then(data => {
-      const package = mapResponseToPackage(data);
-      return package;
-    })
+    .then(mapResponseToPackage)
     .catch(err => {
       console.log('Could not fetch package details!');
     });
@@ -45,9 +40,7 @@ const mapResponseToPackage = response => {
   return package;
 }
 
-const formatRating = rating => {
-  return parseFloat(Math.round(rating*1000)/100).toFixed(2);
-}
+const formatRating = rating => parseFloat(Math.round(rating*1000)/100).toFixed(2);
 
 const printTable = (packages) => {
   
@@ -62,10 +55,9 @@ const printTable = (packages) => {
 
 const init = () => {
   
-  Promise.all(packageNames.map(getPackageDetails))
-  .then(packages => {
-    printTable(packages);
-  })
+  Promise
+  .all(packageNames.map(getPackageDetails))
+  .then(printTable)
   .catch(err => {
     console.log('Oops, looks like the comparison failed');
   })

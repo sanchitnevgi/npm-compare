@@ -3,8 +3,8 @@
 const argv = require('yargs').argv;
 const axios = require('axios');
 const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
-const Table = require('cli-table');
-
+const Table = require('cli-table2');
+const chalk = require('chalk');
 const packageNames = argv._;
 
 const getPackageDetails = name => {
@@ -30,11 +30,11 @@ const mapResponseToPackage = response => {
           npm = { downloads: 0 }, github = { starsCount: 0, issues: { openCount: 0 } } } = response.collected;
 
   
-  const [ daily = 0, weekly = 0, monthly = 0 ] = npm.downloads.map(data => data.count.toLocaleString('en'));
+  const [ daily = 0, weekly = 0, monthly = 0 ] = npm.downloads.map(data => data.count);
 
   const package = { name, version, description, modified: distanceInWordsToNow(date), author: author.name,
                     repository: links.repository, dependencies: Object.keys(dependencies).length,
-                    stars: github.starsCount.toLocaleString('en'), issues: github.issues.openCount.toLocaleString('en'),
+                    stars: github.starsCount, issues: github.issues.openCount,
                     daily, weekly, monthly, rating: formatRating(response.score.final) };
 
   return package;
@@ -48,7 +48,55 @@ const printTable = (packages) => {
   
   const keys = Object.keys(packages[0]);
   
-  keys.forEach(key => table.push({ [key.toUpperCase()]: packages.map(package => package[key]) }));
+  keys.forEach(function(key, index){
+    if(index === 0){
+      table.push({ [chalk.red(key.toUpperCase())]: packages.map(package => chalk.blue(package[key])) })
+    } else {
+      let counter = 0;
+      let highest = undefined;
+      let lowest = undefined;
+      packages.map(function(package, index){
+        if(['stars', 'daily', 'weekly', 'monthly', 'rating'].includes(key)){
+          if(highest === undefined){
+            highest = 0;
+          }
+          if (package[key] > packages[highest][key]){
+            highest = index;
+          }
+        }
+        if(['dependencies', 'issues'].includes(key)){
+          if(lowest === undefined){
+            lowest = 0;
+          }
+          if (package[key] <= packages[lowest][key]){
+            lowest = index;
+          }
+        }
+        return package[key];
+      });
+      table.push({ [chalk.red(key.toUpperCase())]: packages.map(function(package, index){
+        if(['issues', 'stars', 'daily', 'weekly', 'monthly'].includes(key)){
+          package[key] = package[key].toLocaleString('en');
+        }
+        if(highest !== undefined){
+          if(index === highest || package[key] === packages[highest][key]){
+            return chalk.green(package[key])
+          } else {
+            return chalk.red(package[key])
+          }
+        } else if(lowest !== undefined){
+          if(index === lowest || package[key] === packages[lowest][key]){
+            return chalk.green(package[key])
+          } else {
+            return chalk.red(package[key])
+          }
+        } else {
+          return package[key]
+        }
+      })
+      });
+    }
+  });
 
   console.log(table.toString());  
 }

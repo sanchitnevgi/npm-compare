@@ -46,8 +46,9 @@ function mapResponseToPackage(response) {
 
   const package = {
     name,
-    version,
     description,
+    version,
+    rating: formatRating(response.score.final),
     modified: distanceInWordsToNow(date),
     author: author.name,
     repository: links.repository,
@@ -57,7 +58,6 @@ function mapResponseToPackage(response) {
     daily,
     weekly,
     monthly,
-    rating: formatRating(response.score.final),
   };
 
   return package;

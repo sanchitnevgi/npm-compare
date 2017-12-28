@@ -1,6 +1,6 @@
 {
   "name": "npm-compare",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Compare npm packages from your terminal",
   "main": "cli.js",
   "scripts": {
@@ -26,10 +26,10 @@
   },
   "homepage": "https://github.com/sanchitgn/npm-compare#readme",
   "dependencies": {
-    "axios": "^0.15.3",
+    "axios": "^0.17.1",
     "chalk": "^2.3.0",
     "cli-table2": "^0.2.0",
     "date-fns": "^1.28.0",
-    "yargs": "^7.0.1"
+    "yargs": "^10.0.3"
   }
 }

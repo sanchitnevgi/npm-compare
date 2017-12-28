@@ -7,7 +7,7 @@ const Table = require('cli-table2');
 const chalk = require('chalk');
 const packageNames = argv._;
 
-const getPackageDetails = name => {
+function getPackageDetails(name) {
   const url = `https://api.npms.io/v2/package/${name}`;
   return axios
     .get(url)
@@ -19,13 +19,13 @@ const getPackageDetails = name => {
     .catch(err => {
       console.log('Could not fetch package details!');
     });
-};
+}
 
 /*
   Stats that are compared:
   name, version, description, rating, author, modified, downloads, stars, issues, repository, dependencies
 */
-const mapResponseToPackage = response => {
+function mapResponseToPackage(response) {
   const {
     metadata: {
       name,
@@ -61,12 +61,13 @@ const mapResponseToPackage = response => {
   };
 
   return package;
-};
+}
 
-const formatRating = rating =>
-  parseFloat(Math.round(rating * 1000) / 100).toFixed(2);
+function formatRating(rating = 0) {
+  return parseFloat(Math.round(rating * 1000) / 100).toFixed(2);
+}
 
-const printTable = packages => {
+function printTable(packages) {
   const table = new Table();
 
   const keys = Object.keys(packages[0]);
@@ -79,7 +80,6 @@ const printTable = packages => {
         ),
       });
     } else {
-      let counter = 0;
       let highest = undefined;
       let lowest = undefined;
       packages.map(function(package, index) {
@@ -127,14 +127,14 @@ const printTable = packages => {
   });
 
   console.log(table.toString());
-};
+}
 
-const init = () => {
+function init() {
   Promise.all(packageNames.map(getPackageDetails))
     .then(printTable)
     .catch(err => {
       console.log('Oops, looks like the comparison failed');
     });
-};
+}
 
 init();

@@ -8,7 +8,7 @@ const chalk = require('chalk');
 const packageNames = argv._;
 
 function getPackageDetails(name) {
-  const url = `https://api.npms.io/v2/package/${name}`;
+  const url = `https://api.npms.io/v2/package/${encodeURIComponent(name)}`;
   return axios
     .get(url)
     .then(res => {

@@ -3,7 +3,7 @@
 const argv = require('yargs').argv;
 const axios = require('axios');
 const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
-const Table = require('cli-table2');
+const Table = require('cli-table3');
 const chalk = require('chalk');
 const packageNames = argv._;
 

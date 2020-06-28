@@ -17,7 +17,7 @@ function getPackageDetails(name) {
     })
     .then(mapResponseToPackage)
     .catch(err => {
-      console.log('Could not fetch package details!');
+      console.error('Could not fetch package details:', name, err);
     });
 }
 
@@ -133,7 +133,7 @@ function init() {
   Promise.all(packageNames.map(getPackageDetails))
     .then(printTable)
     .catch(err => {
-      console.log('Oops, looks like the comparison failed');
+      console.error('Oops, looks like the comparison failed', err);
     });
 }
 

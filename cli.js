@@ -5,7 +5,38 @@ const axios = require('axios');
 const distanceInWordsToNow = require('date-fns/distance_in_words_to_now');
 const Table = require('cli-table3');
 const chalk = require('chalk');
-const packageNames = argv._;
+const validateNPM = require('validate-npm-package-name');
+const packageNames = sanitizePackageNames(argv._);
+
+/**
+ * Will return a list of valid npm package names according to the rules in `validate-npm-package-name`,
+ * so the resulting list can have a different length.
+ * If any string in the arguments contains whitespace the elements they are split
+ * and treated as multiple package names.
+ * After splitting and before filtering some illegal characters are removed
+ * from the beginning and end of each element.
+ *
+ * @param {string[]} packageNames
+ * @returns {string[]} Sanitized list of package names
+ * @see https://github.com/npm/validate-npm-package-name
+ */
+function sanitizePackageNames(packageNames) {
+  return packageNames
+    // since package names may not contain whitespace let's join and split
+    .join(' ').split(/\s+/)
+    // if packages names are taken from list of directories or the like
+    // let's remove invalid characters from beginning or end
+    .map(name => name.replace(/^[._~)('!*\\\/]+|[~)('!*\\\/]$/g, ''))
+    // for anything else there is not much we can do but we can still filter them out
+    .filter(name => {
+      const {errors, validForNewPackages} = validateNPM(name);
+      if (!validForNewPackages) {
+        console.error(`Skipping '${name}' since it is not a valid npm package name`, errors || '');
+        return false;
+      }
+      return true;
+    });
+}
 
 function getPackageDetails(name) {
   const url = `https://api.npms.io/v2/package/${encodeURIComponent(name)}`;
